@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls')),
-    path('videos/', include('videos.urls')),
+    path('admin/', admin.site.urls),  # Admin-Panel
+    path('api/accounts/', include('accounts.urls')),  # Accounts-URLs
+    path('api/videos/', include('videos.urls')),  # Videos-URLs
 ]
