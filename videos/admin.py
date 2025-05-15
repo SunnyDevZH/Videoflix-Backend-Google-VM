@@ -9,17 +9,4 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'category', 'created_at')  # Zeigt wichtige Felder in der Liste an
-    list_filter = ('category', 'created_at')  # Filter nach Kategorie und Erstellungsdatum
-    search_fields = ('title', 'description')  # Ermöglicht die Suche nach Titel und Beschreibung
-    ordering = ('-created_at',)  # Sortiert Videos nach Erstellungsdatum (neueste zuerst)
-    fieldsets = (
-        (None, {
-            'fields': ('title', 'description', 'thumbnail', 'video_url', 'category')
-        }),
-        ('Metadata', {
-            'fields': ('created_at',),
-            'classes': ('collapse',),  # Klappt den Abschnitt ein
-        }),
-    )
-    readonly_fields = ('created_at',)  # Macht das Erstellungsdatum schreibgeschützt
+    list_display = ('title', 'video_file')

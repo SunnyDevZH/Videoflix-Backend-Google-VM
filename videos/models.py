@@ -8,11 +8,7 @@ class Category(models.Model):
 
 class Video(models.Model):
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    thumbnail = models.ImageField(upload_to='thumbnails/')
-    video_url = models.URLField()
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    video_file = models.FileField(upload_to='videos/', null=True, blank=True)  # Optional gemacht
 
     def __str__(self):
         return self.title

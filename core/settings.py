@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'accounts',        
     'videos',         
     'corsheaders',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -127,3 +129,9 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+# Google Cloud Storage Einstellungen
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = 'videoflix-videos-yannick'
+GS_CREDENTIALS = os.path.join(BASE_DIR, 'core/credentials/service-account-key.json')  # Absoluter Pfad
+MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
