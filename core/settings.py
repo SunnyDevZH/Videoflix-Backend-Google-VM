@@ -131,7 +131,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Google Cloud Storage Einstellungen
+
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'videoflix-videos-yannick'
-GS_CREDENTIALS = os.path.join(BASE_DIR, 'core/credentials/service-account-key.json')  # Absoluter Pfad
+
+from google.oauth2 import service_account
+
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+    os.path.join(BASE_DIR, 'core/credentials/service-account-key.json')
+)
 MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'

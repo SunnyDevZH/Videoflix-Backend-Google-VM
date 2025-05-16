@@ -9,4 +9,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    list_display = ('title', 'video_file')
+    list_display = ('title', 'description', 'thumbnail', 'video_url', 'video_file', 'created_at')  # Zeigt alle Felder an
+    list_filter = ('categories', 'created_at')  # Filter für Kategorien und Erstellungsdatum
+    search_fields = ('title', 'description')  # Ermöglicht die Suche nach Titel und Beschreibung
+    readonly_fields = ('created_at',)  # Macht das Erstellungsdatum schreibgeschützt
+    filter_horizontal = ('categories',)  # Ermöglicht eine bessere Auswahl von Kategorien
