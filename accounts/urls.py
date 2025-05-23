@@ -6,4 +6,6 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),  # Registrierung
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Login (JWT)
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Token erneuern
+
+    
 ]

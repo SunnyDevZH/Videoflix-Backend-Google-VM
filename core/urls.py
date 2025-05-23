@@ -16,9 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from accounts.views import PasswordResetRequestAPIView, PasswordResetConfirmAPIView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Admin-Panel
     path('api/accounts/', include('accounts.urls')),  # Accounts-URLs
     path('api/videos/', include('videos.urls')),  # Videos-URLs
+
+    path('password-reset-request/', PasswordResetRequestAPIView.as_view(), name='password-reset-request'),
+    path('reset-password/confirm/', PasswordResetConfirmAPIView.as_view(), name='password-reset-confirm'),
+
 ]

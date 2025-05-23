@@ -46,14 +46,15 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
+
 
 ROOT_URLCONF = 'core.urls'
 
@@ -128,7 +129,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True
+
 
 # Google Cloud Storage Einstellungen
 
@@ -141,3 +142,28 @@ GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
     os.path.join(BASE_DIR, 'core/credentials/service-account-key.json')
 )
 MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
+
+EMAIL_HOST_USER = 'yannick.vaterlaus.dev@gmail.com'
+EMAIL_HOST_PASSWORD = 'bhqzfyapzktavzzs'  # Dein 16-stelliges App-Passwort ohne Leerzeichen
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
