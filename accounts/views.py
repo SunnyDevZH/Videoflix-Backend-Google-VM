@@ -60,7 +60,7 @@ class PasswordResetRequestAPIView(APIView):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            # Sicherheitsgründe: Nicht verraten ob Email existiert
+            # Sicherheitsgründe: Nicht verraten, ob Email existiert
             return Response({'message': 'Wenn die E-Mail existiert, wird ein Code versandt.'})
 
         # Code generieren
@@ -69,15 +69,28 @@ class PasswordResetRequestAPIView(APIView):
         # Code speichern (alte Codes bleiben, prüfen wir beim Confirm)
         PasswordResetCode.objects.create(user=user, code=code)
 
-        # E-Mail senden (optional kannst du HTML-Template verwenden)
+        # Link zu deiner Frontend-Seite, auf der der Code eingegeben wird
+        reset_link = "http://localhost:5173/forgot-password"
+
+        # E-Mail senden mit Link und Code
         send_mail(
-            subject='Dein Passwort-Reset-Code',
-            message=f'Hallo,\n\nDein Code zum Zurücksetzen des Passworts lautet: {code}\n\nDer Code ist 15 Minuten gültig.\n\nViele Grüße,\nDein Team',
+            subject='Passwort zurücksetzen – Dein Videoflix Team',
+            message=(
+                f"Hallo,\n\n"
+                f"du hast eine Anfrage zum Zurücksetzen deines Passworts gestellt.\n"
+                f"Dein Code lautet: {code}\n\n"
+                f"Bitte gib den Code auf folgender Seite ein, um dein Passwort zurückzusetzen:\n"
+                f"{reset_link}\n\n"
+                f"Dieser Code ist 15 Minuten lang gültig.\n\n"
+                f"Viele Grüße,\n"
+                f"Dein Videoflix Team"
+            ),
             from_email='noreply@deineapp.com',
             recipient_list=[email],
         )
 
         return Response({'message': 'Wenn die E-Mail existiert, wird ein Code versandt.'})
+
 
 
 @method_decorator(csrf_exempt, name='dispatch')
