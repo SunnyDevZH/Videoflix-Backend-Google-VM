@@ -70,7 +70,7 @@ class PasswordResetRequestAPIView(APIView):
         PasswordResetCode.objects.create(user=user, code=code)
 
         # Link zu deiner Frontend-Seite, auf der der Code eingegeben wird
-        reset_link = "http://localhost:5173/forgot-password"
+        reset_link = "http://localhost:5173/reset-password"
 
         # E-Mail senden mit Link und Code
         send_mail(
