@@ -22,6 +22,9 @@ Das Backend für die Videoflix-Plattform, entwickelt mit Django und Django REST 
 - **SQLite**: Datenbank 
 - **JWT**: Authentifizierung mit JSON Web Tokens
 - **Google Cloud Storage**: Speicherung von Videos und Medien.
+- **Google Cloud VM**: Hosting des Backends auf einer virtuellen Maschine.
+- **Gunicorn**: WSGI-Server für die Ausführung der Django-Anwendung.
+- **Nginx**: Reverse Proxy und statische Dateiverwaltung.
 
 ---
 
