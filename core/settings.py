@@ -25,7 +25,8 @@ from decouple import config
 SECRET_KEY = config('DJANGO_SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*", cast=lambda v: [s.strip() for s in v.split(",")])
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="yannick-vaterlaus.ch,www.yannick-vaterlaus.ch", cast=lambda v: [s.strip() for s in v.split(",")])
+
 
 
 # Application definition
@@ -155,6 +156,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://yannick-vaterlaus.ch", 
 ]
 
 REST_FRAMEWORK = {
@@ -166,4 +168,5 @@ REST_FRAMEWORK = {
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://yannick-vaterlaus.ch", 
 ]
