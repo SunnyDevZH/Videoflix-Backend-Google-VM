@@ -25,7 +25,12 @@ from decouple import config
 SECRET_KEY = config('DJANGO_SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="yannick-vaterlaus.ch,www.yannick-vaterlaus.ch", cast=lambda v: [s.strip() for s in v.split(",")])
+ALLOWED_HOSTS = [
+    "videoflix.yannick-vaterlaus-backend-api.ch",
+    "localhost",
+    "127.0.0.1"
+]
+
 
 
 
