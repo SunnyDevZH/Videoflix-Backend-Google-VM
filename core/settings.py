@@ -28,7 +28,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = [
     "videoflix.yannick-vaterlaus-backend-api.ch",
     "localhost",
-    "127.0.0.1"
+    "127.0.0.1",
+    '34.65.9.214',
 ]
 
 
@@ -173,5 +174,6 @@ REST_FRAMEWORK = {
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://yannick-vaterlaus.ch", 
+    "https://yannick-vaterlaus.ch",
+     "https://videoflix.yannick-vaterlaus-backend-api.ch" 
 ]
