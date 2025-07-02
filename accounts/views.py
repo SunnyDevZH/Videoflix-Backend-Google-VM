@@ -1,21 +1,26 @@
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
 from .serializers import RegisterSerializer
+from .models import PasswordResetCode, ActivationCode
 
 import random
 
 User = get_user_model()
 
 
+# Registrierung mit Bestätigungs-Mail
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
@@ -26,28 +31,87 @@ class RegisterView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response({'message': 'User registered successfully'}, status=201)
+            user = serializer.save()
+            user.is_active = False  # Account noch nicht aktiv
+            user.save()
+
+            # ActivationCode generieren und speichern
+            code = get_random_string(64)
+            ActivationCode.objects.create(user=user, code=code)
+
+            activation_link = f"http://localhost:5173/videoflix/activate/{code}"
+            username = user.email.split("@")[0]
+
+            send_mail(
+                subject="Bestätige deine Registrierung – Videoflix",
+                message=(
+                    f"Lieber {username}\n\n"
+                    f"Nur noch ein kleiner Schritt: Bitte aktiviere deinen Account über den folgenden Link:\n\n"
+                    f"{activation_link}\n\n"
+                    f"Liebe Grüsse\n"
+                    f"Dein Videoflix Team"
+                    f"Yannick"
+                ),
+                from_email="noreply@deineapp.com",
+                recipient_list=[user.email],
+            )
+
+            return Response({'message': 'Bitte bestätige deine E-Mail. Prüfe dein Postfach.'}, status=201)
+
         return Response(serializer.errors, status=400)
 
 
-# Hier Deine CustomTokenObtainPairView, CustomTokenRefreshView unverändert
+# Aktivierung der Registrierung (via ActivationCode)
+class ActivateAccountView(APIView):
+    permission_classes = [AllowAny]
 
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+    def get(self, request, activation_code):
+        try:
+            activation = ActivationCode.objects.get(code=activation_code, is_used=False)
+        except ActivationCode.DoesNotExist:
+            return Response({'error': 'Ungültiger oder bereits verwendeter Aktivierungslink.'}, status=400)
 
+        if activation.is_expired():
+            return Response({'error': 'Aktivierungslink ist abgelaufen.'}, status=400)
+
+        user = activation.user
+        if user.is_active:
+            return Response({'message': 'Dein Account ist bereits aktiviert.'}, status=200)
+
+        # User aktivieren
+        user.is_active = True
+        user.save()
+
+        # Aktivierungscode als verwendet markieren
+        activation.is_used = True
+        activation.save()
+
+        return Response({'message': 'Dein Account wurde aktiviert. Du kannst dich jetzt einloggen.'}, status=200)
+
+
+# Login (blockiert inaktive Accounts)
 class CustomTokenObtainPairView(TokenObtainPairView):
     permission_classes = [AllowAny]
 
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        if email:
+            try:
+                user = User.objects.get(email=email)
+                if not user.is_active:
+                    raise AuthenticationFailed('Bitte bestätige zuerst deine E-Mail-Adresse.')
+            except User.DoesNotExist:
+                pass  # Fehler bei ungültigem Benutzer kommt sowieso von SimpleJWT
 
+        return super().post(request, *args, **kwargs)
+
+
+# Token Refresh bleibt unverändert
 class CustomTokenRefreshView(TokenRefreshView):
     permission_classes = [AllowAny]
 
 
-# Neues PasswordResetCode Model brauchen wir noch (s.u.), aber hier die Views:
-
-from .models import PasswordResetCode
-
-
+# Passwort-Zurücksetzen: Code anfordern
 @method_decorator(csrf_exempt, name='dispatch')
 class PasswordResetRequestAPIView(APIView):
     permission_classes = [AllowAny]
@@ -60,26 +124,20 @@ class PasswordResetRequestAPIView(APIView):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            # Sicherheitsgründe: Nicht verraten, ob Email existiert
             return Response({'message': 'Wenn die E-Mail existiert, wird ein Code versandt.'})
 
-        # Code generieren
         code = f"{random.randint(100000, 999999)}"
-
-        # Code speichern (alte Codes bleiben, prüfen wir beim Confirm)
         PasswordResetCode.objects.create(user=user, code=code)
 
-        # Link zu deiner Frontend-Seite, auf der der Code eingegeben wird
         reset_link = "http://localhost:5173/reset-password"
 
-        # E-Mail senden mit Link und Code
         send_mail(
-            subject='Passwort zurücksetzen – Dein Videoflix Team',
+            subject='Passwort zurücksetzen – Videoflix',
             message=(
                 f"Hallo,\n\n"
                 f"du hast eine Anfrage zum Zurücksetzen deines Passworts gestellt.\n"
                 f"Dein Code lautet: {code}\n\n"
-                f"Bitte gib den Code auf folgender Seite ein, um dein Passwort zurückzusetzen:\n"
+                f"Bitte gib den Code auf folgender Seite ein:\n"
                 f"{reset_link}\n\n"
                 f"Dieser Code ist 15 Minuten lang gültig.\n\n"
                 f"Viele Grüße,\n"
@@ -92,7 +150,7 @@ class PasswordResetRequestAPIView(APIView):
         return Response({'message': 'Wenn die E-Mail existiert, wird ein Code versandt.'})
 
 
-
+# Passwort-Zurücksetzen: Code bestätigen
 @method_decorator(csrf_exempt, name='dispatch')
 class PasswordResetConfirmAPIView(APIView):
     permission_classes = [AllowAny]
@@ -111,15 +169,12 @@ class PasswordResetConfirmAPIView(APIView):
         except (User.DoesNotExist, PasswordResetCode.DoesNotExist):
             return Response({'error': 'Ungültiger Code oder Benutzer'}, status=400)
 
-        # Ablaufzeit prüfen (15 Minuten)
         if timezone.now() > reset_code.created_at + timezone.timedelta(minutes=15):
             return Response({'error': 'Code ist abgelaufen'}, status=400)
 
-        # Passwort setzen
         user.set_password(new_password)
         user.save()
 
-        # Code als verwendet markieren
         reset_code.is_used = True
         reset_code.save()
 
