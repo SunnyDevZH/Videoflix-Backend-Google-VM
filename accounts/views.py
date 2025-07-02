@@ -45,11 +45,11 @@ class RegisterView(APIView):
             send_mail(
                 subject="Bestätige deine Registrierung – Videoflix",
                 message=(
-                    f"Lieber {username}\n\n"
+                    f"Hallo {username}\n\n"
                     f"Nur noch ein kleiner Schritt: Bitte aktiviere deinen Account über den folgenden Link:\n\n"
                     f"{activation_link}\n\n"
                     f"Liebe Grüsse\n"
-                    f"Dein Videoflix Team"
+                    f"Dein Videoflix Team\n"
                     f"Yannick"
                 ),
                 from_email="noreply@deineapp.com",
@@ -130,18 +130,20 @@ class PasswordResetRequestAPIView(APIView):
         PasswordResetCode.objects.create(user=user, code=code)
 
         reset_link = "http://localhost:5173/reset-password"
+        username = user.email.split("@")[0]
 
         send_mail(
             subject='Passwort zurücksetzen – Videoflix',
             message=(
-                f"Hallo,\n\n"
+                f"Hallo {username}\n\n"
                 f"du hast eine Anfrage zum Zurücksetzen deines Passworts gestellt.\n"
                 f"Dein Code lautet: {code}\n\n"
                 f"Bitte gib den Code auf folgender Seite ein:\n"
                 f"{reset_link}\n\n"
                 f"Dieser Code ist 15 Minuten lang gültig.\n\n"
-                f"Viele Grüße,\n"
-                f"Dein Videoflix Team"
+                f"Viele Grüsse,\n"
+                f"Dein Videoflix Team\n"
+                f"Yannick"
             ),
             from_email='noreply@deineapp.com',
             recipient_list=[email],
