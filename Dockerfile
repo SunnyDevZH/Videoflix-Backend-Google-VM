@@ -1,14 +1,22 @@
-FROM python:3.11-slim
+FROM python:3.12-alpine
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+LABEL maintainer="mihai@developerakademie.com"
+LABEL version="1.0"
+LABEL description="Python 3.14.0a7 Alpine 3.21"
 
 WORKDIR /app
 
-COPY requirements.txt /app/
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+COPY . .
 
-COPY . /app/
+RUN apk update && \
+    apk add --no-cache --upgrade bash && \
+    apk add --no-cache postgresql-client ffmpeg && \
+    apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev && \
+    pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    apk del .build-deps && \
+    chmod +x backend.entrypoint.sh
 
-CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]
+EXPOSE 8000
+
+ENTRYPOINT [ "./backend.entrypoint.sh" ]
