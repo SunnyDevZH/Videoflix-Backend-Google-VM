@@ -33,9 +33,6 @@ ALLOWED_HOSTS = [
     '34.65.9.214',
 ]
 
-
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -64,6 +61,10 @@ MIDDLEWARE = [
     
 ]
 
+# Whitenoise Middleware ergänzen (für statische Dateien im Production-Setup)
+# Hier an Position 2 einfügen, damit sie früh ausgeführt wird:
+MIDDLEWARE.insert(2, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
 
 ROOT_URLCONF = 'core.urls'
 
@@ -88,12 +89,18 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
+
 
 
 # Password validation
@@ -121,6 +128,8 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
+# Optional für Schweizer Zeit:
+# TIME_ZONE = 'Europe/Zurich'
 
 USE_I18N = True
 
@@ -132,6 +141,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Whitenoise Storage Backend für statische Dateien im Production-Betrieb
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -153,11 +166,14 @@ GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
 MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
 
 EMAIL_HOST_USER = 'yannick.vaterlaus.dev@gmail.com'
-EMAIL_HOST_PASSWORD = 'bhqzfyapzktavzzs'  # Dein 16-stelliges App-Passwort ohne Leerzeichen
+EMAIL_HOST_PASSWORD = 'bhqzfyapzktavzzs'  
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# Sichere Einstellung für Email-Passwort via .env überschreiben
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default=EMAIL_HOST_PASSWORD)
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -181,5 +197,33 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://yannick-vaterlaus.ch",
-     "https://videoflix.yannick-vaterlaus-backend-api.ch" 
+    "https://videoflix.yannick-vaterlaus-backend-api.ch"
 ]
+
+
+
+# Redis Einstellungen (z.B. für django-rq)
+
+REDIS_HOST = config('REDIS_HOST', default='localhost')
+REDIS_PORT = config('REDIS_PORT', default=6379, cast=int)
+REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': 360,
+    }
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
