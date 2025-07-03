@@ -55,7 +55,29 @@ python3 manage.py runserver
 ### 7. Anwendung im Browser öffnen
 Öffnen Sie die URL http://127.0.0.1:8000, um die Anwendung zu sehen.
 
----
+
+## 🐳 Dockers
+
+### 1. Repository klonen
+git clone https://github.com/SunnyDevZH/videoflix-backend
+cd videoflix-backend
+
+### 2. .env Datei erstellen
+Erstelle eine .env Datei im Projektverzeichnis mit allen notwendigen Umgebungsvariablen (Beispiel .env.example siehe im Repo).
+
+### 3. Docker-Container starten
+docker-compose up --build
+
+### 4. Datenbankmigrationen ausführen (im laufenden Container)
+docker-compose exec web python manage.py migrate
+
+
+### 5. Optional: Superuser erstellen
+docker-compose exec web python manage.py createsuperuser
+
+### 6. Anwendung im Browser öffnen:
+http://localhost:8000
+
 
 ## 📧 Kontakt
 Email: yannick.vaterlaus.dev@gmail.com
