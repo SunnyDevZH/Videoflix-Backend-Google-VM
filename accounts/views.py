@@ -22,6 +22,7 @@ User = get_user_model()
 
 # Registrierung mit Bestätigungs-Mail
 class RegisterView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     @method_decorator(csrf_exempt)
@@ -63,6 +64,7 @@ class RegisterView(APIView):
 
 # Aktivierung der Registrierung (via ActivationCode)
 class ActivateAccountView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     def get(self, request, activation_code):
@@ -91,6 +93,7 @@ class ActivateAccountView(APIView):
 
 # Login (blockiert inaktive Accounts)
 class CustomTokenObtainPairView(TokenObtainPairView):
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -114,6 +117,7 @@ class CustomTokenRefreshView(TokenRefreshView):
 # Passwort-Zurücksetzen: Code anfordern
 @method_decorator(csrf_exempt, name='dispatch')
 class PasswordResetRequestAPIView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -155,6 +159,7 @@ class PasswordResetRequestAPIView(APIView):
 # Passwort-Zurücksetzen: Code bestätigen
 @method_decorator(csrf_exempt, name='dispatch')
 class PasswordResetConfirmAPIView(APIView):
+    authentication_classes = []
     permission_classes = [AllowAny]
 
     def post(self, request):

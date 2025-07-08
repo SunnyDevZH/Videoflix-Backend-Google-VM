@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     VideoListView, VideoDetailView, CategoryListView, 
-    VideoUploadView, get_signed_video_url  # <== wichtig!
+    VideoUploadView, # get_signed_video_url  # aktuell nicht importieren
 )
 
 urlpatterns = [
@@ -10,6 +10,7 @@ urlpatterns = [
     path('categories/', CategoryListView.as_view(), name='category-list'),
     path('upload/', VideoUploadView.as_view(), name='video-upload'),
     
+    
     # 📦 Signierte URL für Video holen (z. B. für <video src=...>)
-    path('signed-url/<str:filename>/', get_signed_video_url, name='get-signed-url'),
+    # path('signed-url/<str:filename>/', get_signed_video_url, name='get-signed-url'),  # auskommentiert
 ]

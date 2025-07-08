@@ -11,6 +11,8 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # Debug
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
+print("DEBUG:", DEBUG)
+print("SECRET_KEY:", SECRET_KEY)
 
 # Hosts
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
@@ -29,7 +31,7 @@ INSTALLED_APPS = [
     'videos',
     'corsheaders',
     'storages',
-    'django_rq',  # hinzugefügt für Redis-RQ
+    'django_rq',  
 ]
 
 # Middleware
@@ -94,8 +96,26 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # für collectstatic
 
-MEDIA_URL = f'https://storage.googleapis.com/{os.getenv("GS_BUCKET_NAME", "videoflix-videos-yannick")}/'
-MEDIA_ROOT = BASE_DIR / 'media'  # für lokale Medien, falls genutzt
+USE_GCS = os.getenv("USE_GCS", "False") == "True"
+
+if USE_GCS:
+    from google.oauth2 import service_account
+
+    GS_BUCKET_NAME = os.getenv("GS_BUCKET_NAME", "videoflix-videos-yannick")
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+        os.path.join(BASE_DIR, 'core/credentials/service-account-key.json')
+    )
+
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+else:
+    GS_BUCKET_NAME = None
+    GS_CREDENTIALS = None  # <--- WICHTIG!
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    MEDIA_URL = '/videoflix/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from accounts.views import PasswordResetRequestAPIView, PasswordResetConfirmAPIView
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -28,3 +30,7 @@ urlpatterns = [
     path('reset-password/confirm/', PasswordResetConfirmAPIView.as_view(), name='password-reset-confirm'),
 
 ]
+
+if settings.DEBUG:
+    # Media-Dateien unter /videoflix/media/ bereitstellen
+    urlpatterns += static('/videoflix/media/', document_root=settings.MEDIA_ROOT)
