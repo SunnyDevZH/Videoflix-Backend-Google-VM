@@ -46,13 +46,19 @@ pip install -r requirements.txt
 python3 manage.py makemigrations
 python3 manage.py migrate
 
-### 5. Superuser erstellen
+### 5. Dotenv installieren
+pip3 install python-dotenv
+
+### 6. Env-Template erstellen
+cp .env.template .env
+
+### 7. Superuser erstellen
 python3 manage.py createsuperuser
 
-### 6. Entwicklungsserver starten
+### 8. Entwicklungsserver starten
 python3 manage.py runserver
 
-### 7. Anwendung im Browser öffnen
+### 9. Anwendung im Browser öffnen
 Öffnen Sie die URL http://127.0.0.1:8000, um die Anwendung zu sehen.
 
 
