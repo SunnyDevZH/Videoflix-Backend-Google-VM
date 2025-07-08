@@ -69,7 +69,8 @@ git clone https://github.com/SunnyDevZH/videoflix-backend
 cd videoflix-backend
 
 ### 2. .env Datei erstellen
-Erstelle eine .env Datei im Projektverzeichnis mit allen notwendigen Umgebungsvariablen (Beispiel .env.example siehe im Repo).
+cp .env.template .env
+
 
 ### 3. Docker-Container starten
 docker-compose up --build
