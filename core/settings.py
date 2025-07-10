@@ -96,36 +96,25 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # für collectstatic
 
-USE_GCS = os.getenv("USE_GCS", "False") == "True"
 
-if USE_GCS:
-    from google.oauth2 import service_account
-
-    GS_BUCKET_NAME = os.getenv("GS_BUCKET_NAME", "videoflix-videos-yannick")
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-        os.path.join(BASE_DIR, 'core/credentials/service-account-key.json')
-    )
-
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
-    MEDIA_ROOT = BASE_DIR / 'media'
-else:
-    GS_BUCKET_NAME = None
-    GS_CREDENTIALS = None  # <--- WICHTIG!
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    MEDIA_URL = '/videoflix/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/videoflix/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+
 # Google Cloud Storage Einstellungen
-from google.oauth2 import service_account
-GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-    os.path.join(BASE_DIR, 'core/credentials/service-account-key.json')
-)
-GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME', 'videoflix-videos-yannick')
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+USE_GCS = os.getenv('USE_GCS', 'False').lower() in ('true', '1', 'yes')
+
+if USE_GCS:
+    from google.oauth2 import service_account
+    credentials_path = os.path.join(BASE_DIR, 'core/credentials/service-account-key.json')
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(credentials_path)
+    GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME', 'videoflix-videos-yannick')
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+else:
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 # Email
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'yannick.vaterlaus.dev@gmail.com')

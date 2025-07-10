@@ -27,6 +27,8 @@ services:
     depends_on:
       - db
       - redis
+    environment:
+      - USE_GCS=False 
 
 
 
