@@ -73,7 +73,7 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME', 'videoflix_db'),
         'USER': os.getenv('DB_USER', 'videoflix_user'),
         'PASSWORD': os.getenv('DB_PASSWORD', '1234'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'HOST': os.getenv('DB_HOST', 'db'),
         'PORT': os.getenv('DB_PORT', '5432'),
     }
 }

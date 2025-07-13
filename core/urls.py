@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # Admin-Panel
     path('api/accounts/', include('accounts.urls')),  # Accounts-URLs
     path('api/videos/', include('videos.urls')),  # Videos-URLs
+    path('django-rq/', include('django_rq.urls')),  # RQ-Monitoring
 
     path('password-reset-request/', PasswordResetRequestAPIView.as_view(), name='password-reset-request'),
     path('reset-password/confirm/', PasswordResetConfirmAPIView.as_view(), name='password-reset-confirm'),

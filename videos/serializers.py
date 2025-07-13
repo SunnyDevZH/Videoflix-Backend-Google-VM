@@ -1,4 +1,3 @@
-# videos/serializers.py
 from rest_framework import serializers
 from django.conf import settings
 from .models import Video, Category
@@ -11,8 +10,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class VideoSerializer(serializers.ModelSerializer):
     categories = CategorySerializer(many=True)
-    video_url = serializers.SerializerMethodField()
     thumbnail_url = serializers.SerializerMethodField()
+    resolutions = serializers.SerializerMethodField()
 
     class Meta:
         model = Video
@@ -21,32 +20,27 @@ class VideoSerializer(serializers.ModelSerializer):
             'title',
             'description',
             'thumbnail_url',
-            'video_url',
-            'video_file',
+            'video_file',  # Optional: Originaldatei
+            'resolutions',  # Auflösungen als Dictionary
             'categories',
             'created_at'
         ]
 
-    def get_video_url(self, obj):
-        if not obj.video_file:
+    def get_signed_url(self, file_field):
+        if not file_field:
             return ""
-
         if getattr(settings, "USE_GCS", False):
-            return generate_signed_url(obj.video_file.name)
-        else:
-            request = self.context.get("request")
-            if request is not None:
-                return request.build_absolute_uri(obj.video_file.url)
-            return obj.video_file.url
+            return generate_signed_url(file_field.name)
+        request = self.context.get("request")
+        return request.build_absolute_uri(file_field.url) if request else file_field.url
 
     def get_thumbnail_url(self, obj):
-        if not obj.thumbnail:
-            return ""
+        return self.get_signed_url(obj.thumbnail)
 
-        if getattr(settings, "USE_GCS", False):
-            return generate_signed_url(obj.thumbnail.name)
-        else:
-            request = self.context.get("request")
-            if request is not None:
-                return request.build_absolute_uri(obj.thumbnail.url)
-            return obj.thumbnail.url
+    def get_resolutions(self, obj):
+        return {
+            "360p": self.get_signed_url(obj.video_360p),
+            "480p": self.get_signed_url(obj.video_480p),
+            "720p": self.get_signed_url(obj.video_720p),
+            "1080p": self.get_signed_url(obj.video_1080p),
+        }

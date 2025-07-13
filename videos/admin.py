@@ -3,14 +3,30 @@ from .models import Video, Category
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')  # Zeigt ID und Name in der Liste an
-    search_fields = ('name',)  # Ermöglicht die Suche nach Kategorien
-    ordering = ('name',)  # Sortiert die Kategorien alphabetisch
+    list_display = ('id', 'name')
+    search_fields = ('name',)
+    ordering = ('name',)
+
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'thumbnail', 'video_url', 'video_file', 'created_at')  # Zeigt alle Felder an
-    list_filter = ('categories', 'created_at')  # Filter für Kategorien und Erstellungsdatum
-    search_fields = ('title', 'description')  # Ermöglicht die Suche nach Titel und Beschreibung
-    readonly_fields = ('created_at',)  # Macht das Erstellungsdatum schreibgeschützt
-    filter_horizontal = ('categories',)  # Ermöglicht eine bessere Auswahl von Kategorien
+    list_display = (
+        'title',
+        'description',
+        'thumbnail',
+        'video_file',  # Das ist das Original-Upload
+        'video_720p_preview',  # Custom Methode unten
+        'created_at',
+    )
+    list_filter = ('categories', 'created_at')
+    search_fields = ('title', 'description')
+    readonly_fields = ('created_at',)
+    filter_horizontal = ('categories',)
+
+    # Custom-Methode für Admin-Anzeige (optional)
+    def video_720p_preview(self, obj):
+        if obj.video_720p:
+            return obj.video_720p.url
+        return "Keine 720p-Datei vorhanden"
+
+    video_720p_preview.short_description = "Video 720p URL"

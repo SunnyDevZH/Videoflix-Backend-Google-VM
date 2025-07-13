@@ -3,14 +3,16 @@ from rest_framework.response import Response
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
     IsAdminUser,
-    IsAuthenticated,
     AllowAny,
 )
 from rest_framework.decorators import api_view, permission_classes
+from django.conf import settings
+from django_rq import get_queue
+
 from .models import Video, Category
 from .serializers import VideoSerializer, CategorySerializer
-from django.conf import settings
 from .utils import generate_signed_url
+from .tasks import generate_resolutions  # Dein Hintergrundjob
 
 
 def get_video_url(video):
@@ -37,10 +39,11 @@ class VideoDetailView(APIView):
     def get(self, request, pk):
         try:
             video = Video.objects.get(pk=pk)
-            serializer = VideoSerializer(video, context={'request': request})
-            return Response(serializer.data)
         except Video.DoesNotExist:
             return Response({'error': 'Video not found'}, status=404)
+        
+        serializer = VideoSerializer(video, context={'request': request})
+        return Response(serializer.data)
 
 
 class CategoryListView(APIView):
@@ -58,13 +61,18 @@ class VideoUploadView(APIView):
     def post(self, request):
         serializer = VideoSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            video = serializer.save()
+
+            # Hintergrundjob starten, um Video in Auflösungen zu konvertieren
+            queue = get_queue('default')
+            queue.enqueue(generate_resolutions, video.id)
+
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def get_signed_video_url(request, filename):
     if getattr(settings, "USE_GCS", False):
         blob_name = f"videos/{filename}"
