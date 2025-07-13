@@ -1,6 +1,6 @@
-import subprocess
+from django.core.files import File
 from .models import Video
-from django.conf import settings
+import subprocess
 import os
 
 def generate_resolutions(video_id):
@@ -8,24 +8,37 @@ def generate_resolutions(video_id):
         video = Video.objects.get(id=video_id)
         input_path = video.video_file.path  # Lokaler Pfad zum Originalvideo
 
-        # Definiere die Auflösungen
         resolutions = {
             '360p': '640x360',
             '480p': '854x480',
             '720p': '1280x720',
+            '1080p': '1920x1080',
         }
 
         for label, size in resolutions.items():
             base, ext = os.path.splitext(input_path)
             output_path = f"{base}_{label}.mp4"
 
-            # ffmpeg-Befehl ausführen (Video skalieren, Audio kopieren)
+            # FFMPEG: skaliert Video, Audio kopiert
             subprocess.run([
                 'ffmpeg', '-i', input_path, '-vf', f'scale={size}', '-c:a', 'copy', output_path
             ], check=True)
 
-            # TODO: Speichere output_path in einem neuen FileField im Video-Modell
-            # Oder lade Datei in Cloud hoch, wenn du GCS o.Ä. nutzt.
+            with open(output_path, 'rb') as f:
+                django_file = File(f)
+                if label == '360p':
+                    video.video_360p.save(os.path.basename(output_path), django_file, save=False)
+                elif label == '480p':
+                    video.video_480p.save(os.path.basename(output_path), django_file, save=False)
+                elif label == '720p':
+                    video.video_720p.save(os.path.basename(output_path), django_file, save=False)
+                elif label == '1080p':
+                    video.video_1080p.save(os.path.basename(output_path), django_file, save=False)
+
+            # Datei löschen nach Speicherung (optional)
+            os.remove(output_path)
+
+        video.save()
 
         print(f"Video {video_id} erfolgreich in mehrere Auflösungen umgewandelt.")
 

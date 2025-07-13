@@ -9,7 +9,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 class VideoSerializer(serializers.ModelSerializer):
-    categories = CategorySerializer(many=True)
+    categories = CategorySerializer(many=True, read_only=True)
     thumbnail_url = serializers.SerializerMethodField()
     resolutions = serializers.SerializerMethodField()
 
@@ -20,10 +20,10 @@ class VideoSerializer(serializers.ModelSerializer):
             'title',
             'description',
             'thumbnail_url',
-            'video_file',  # Optional: Originaldatei
-            'resolutions',  # Auflösungen als Dictionary
+            'video_file',  # Originalvideo
+            'resolutions',  # URLs der verschiedenen Auflösungen
             'categories',
-            'created_at'
+            'created_at',
         ]
 
     def get_signed_url(self, file_field):
@@ -32,7 +32,9 @@ class VideoSerializer(serializers.ModelSerializer):
         if getattr(settings, "USE_GCS", False):
             return generate_signed_url(file_field.name)
         request = self.context.get("request")
-        return request.build_absolute_uri(file_field.url) if request else file_field.url
+        if request:
+            return request.build_absolute_uri(file_field.url)
+        return file_field.url
 
     def get_thumbnail_url(self, obj):
         return self.get_signed_url(obj.thumbnail)

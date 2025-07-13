@@ -12,7 +12,6 @@ class Video(models.Model):
     thumbnail = models.ImageField(upload_to='thumbnails/', null=True, blank=True)
     video_file = models.FileField(upload_to='videos/original/', null=True, blank=True)
 
-    # Neue Felder für verschiedene Auflösungen
     video_360p = models.FileField(upload_to='videos/360p/', null=True, blank=True)
     video_480p = models.FileField(upload_to='videos/480p/', null=True, blank=True)
     video_720p = models.FileField(upload_to='videos/720p/', null=True, blank=True)

@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
 
   db:
@@ -30,8 +32,20 @@ services:
     environment:
       - USE_GCS=False 
 
-
-
+  rqworker:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    command: python manage.py rqworker default
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - db
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings
+    env_file:
+      - .env
 
 volumes:
   postgres_data:

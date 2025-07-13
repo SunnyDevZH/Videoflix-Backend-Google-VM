@@ -8,12 +8,14 @@ from rest_framework.permissions import (
 from rest_framework.decorators import api_view, permission_classes
 from django.conf import settings
 from django_rq import get_queue
+import logging
 
 from .models import Video, Category
 from .serializers import VideoSerializer, CategorySerializer
 from .utils import generate_signed_url
 from .tasks import generate_resolutions  # Dein Hintergrundjob
 
+logger = logging.getLogger(__name__)
 
 def get_video_url(video):
     if video.video_file:
@@ -65,9 +67,16 @@ class VideoUploadView(APIView):
 
             # Hintergrundjob starten, um Video in Auflösungen zu konvertieren
             queue = get_queue('default')
-            queue.enqueue(generate_resolutions, video.id)
+            job = queue.enqueue(generate_resolutions, video.id)
+            
+            logger.info(f"Task generate_resolutions für Video {video.id} enqueued mit Job-ID {job.id}")
 
-            return Response(serializer.data, status=201)
+            # Optional: Status in der Response mitgeben
+            response_data = serializer.data.copy()
+            response_data['task_job_id'] = job.id
+            response_data['task_status'] = 'enqueued'
+
+            return Response(response_data, status=201)
         return Response(serializer.errors, status=400)
 
 
