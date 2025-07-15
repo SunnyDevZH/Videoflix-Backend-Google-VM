@@ -31,6 +31,9 @@ services:
       - redis
     environment:
       - USE_GCS=False 
+    volumes:
+      - .:/app
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
 
   rqworker:
     build:

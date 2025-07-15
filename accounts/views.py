@@ -19,9 +19,12 @@ import random
 
 User = get_user_model()
 
-
-# Registrierung mit Bestätigungs-Mail
 class RegisterView(APIView):
+    """
+    Allows a new user to register.
+    - Creates an inactive user account.
+    - Generates an activation code and sends a confirmation email with a link.
+    """
     authentication_classes = []
     permission_classes = [AllowAny]
 
@@ -30,6 +33,10 @@ class RegisterView(APIView):
         return super().dispatch(*args, **kwargs)
 
     def post(self, request):
+        """
+        Handles user registration.
+        Sends an activation email after successful registration.
+        """
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -64,10 +71,18 @@ class RegisterView(APIView):
 
 # Aktivierung der Registrierung (via ActivationCode)
 class ActivateAccountView(APIView):
+    """
+    Activates a user account using a valid activation code.
+    - Checks if the code is valid and not expired.
+    - Sets the user as active and marks the code as used.
+    """
     authentication_classes = []
     permission_classes = [AllowAny]
 
     def get(self, request, activation_code):
+        """
+        Handles account activation via activation code.
+        """
         try:
             activation = ActivationCode.objects.get(code=activation_code, is_used=False)
         except ActivationCode.DoesNotExist:
@@ -93,10 +108,17 @@ class ActivateAccountView(APIView):
 
 # Login (blockiert inaktive Accounts)
 class CustomTokenObtainPairView(TokenObtainPairView):
+    """
+    Custom login view that blocks inactive accounts.
+    - Returns an error if the account has not been activated yet.
+    """
     authentication_classes = []
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+        """
+        Handles login and checks if the user account is active.
+        """
         email = request.data.get('email')
         if email:
             try:
@@ -111,16 +133,27 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 # Token Refresh bleibt unverändert
 class CustomTokenRefreshView(TokenRefreshView):
+    """
+    Standard token refresh view from SimpleJWT.
+    """
     permission_classes = [AllowAny]
 
 
 # Passwort-Zurücksetzen: Code anfordern
 @method_decorator(csrf_exempt, name='dispatch')
 class PasswordResetRequestAPIView(APIView):
+    """
+    Allows users to request a password reset code.
+    - Sends a 6-digit code via email if the address exists.
+    - The code is valid for 15 minutes.
+    """
     authentication_classes = []
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """
+        Handles password reset code request.
+        """
         email = request.data.get('email')
         if not email:
             return Response({'error': 'E-Mail wird benötigt'}, status=400)
@@ -159,10 +192,18 @@ class PasswordResetRequestAPIView(APIView):
 # Passwort-Zurücksetzen: Code bestätigen
 @method_decorator(csrf_exempt, name='dispatch')
 class PasswordResetConfirmAPIView(APIView):
+    """
+    Resets the password if a valid code and new password are provided.
+    - Checks code, expiration, and sets the new password.
+    - Marks the code as used.
+    """
     authentication_classes = []
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """
+        Handles password reset confirmation and sets the new password.
+        """
         email = request.data.get('email')
         code = request.data.get('code')
         new_password = request.data.get('new_password')

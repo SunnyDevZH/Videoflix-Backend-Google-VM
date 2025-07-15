@@ -41,10 +41,7 @@ cp .env.template .env
 ### 3. Docker-Container starten
 docker-compose up --build
 
-### 4. Datenbankmigrationen ausführen (im laufenden Container)
-docker-compose exec web python manage.py migrate
-
-### 5. Anwendung im Browser öffnen:
+### 4. Anwendung im Browser öffnen:
 http://localhost:8000/admin
 
 

@@ -27,6 +27,10 @@ def get_video_url(video):
 
 
 class VideoListView(APIView):
+    """
+    Returns a list of all videos.
+    - Accessible to authenticated users and read-only for unauthenticated users.
+    """
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request):
@@ -36,6 +40,11 @@ class VideoListView(APIView):
 
 
 class VideoDetailView(APIView):
+    """
+    Returns the details of a single video by its primary key.
+    - Accessible to authenticated users and read-only for unauthenticated users.
+    - Returns 404 if the video does not exist.
+    """
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, pk):
@@ -49,6 +58,10 @@ class VideoDetailView(APIView):
 
 
 class CategoryListView(APIView):
+    """
+    Returns a list of all video categories.
+    - Accessible to everyone.
+    """
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -58,6 +71,11 @@ class CategoryListView(APIView):
 
 
 class VideoUploadView(APIView):
+    """
+    Allows admin users to upload a new video.
+    - Starts a background job to generate different video resolutions.
+    - Returns job status and job ID in the response.
+    """
     permission_classes = [IsAdminUser]
 
     def post(self, request):
@@ -83,6 +101,10 @@ class VideoUploadView(APIView):
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def get_signed_video_url(request, filename):
+    """
+    Returns a signed URL for accessing a video file.
+    - Uses Google Cloud Storage if enabled, otherwise returns a local media URL.
+    """
     if getattr(settings, "USE_GCS", False):
         blob_name = f"videos/{filename}"
         try:

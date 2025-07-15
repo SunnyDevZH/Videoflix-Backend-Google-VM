@@ -7,6 +7,11 @@ from .tasks import generate_resolutions
 
 @receiver(post_save, sender=Video)
 def trigger_resolution_generation(sender, instance, created, **kwargs):
+    """
+    Signal handler that triggers video resolution generation after a new video is saved.
+    - Only triggers if a new Video instance is created and has an original video file.
+    - Enqueues the generate_resolutions task in the default queue.
+    """
     # Nur auslösen, wenn ein neues Video erstellt wurde und originalvideo vorhanden
     if created and instance.video_file:
         queue = get_queue('default')

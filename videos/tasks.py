@@ -4,6 +4,14 @@ import subprocess
 import os
 
 def generate_resolutions(video_id):
+    """
+    Generates multiple video resolutions for a given video.
+    - Fetches the video by ID.
+    - Uses ffmpeg to create 360p, 480p, 720p, and 1080p versions.
+    - Saves the generated files to the corresponding fields in the Video model.
+    - Removes temporary files after saving.
+    - Prints success or error messages for logging/debugging.
+    """
     try:
         video = Video.objects.get(id=video_id)
         input_path = video.video_file.path  # Lokaler Pfad zum Originalvideo
