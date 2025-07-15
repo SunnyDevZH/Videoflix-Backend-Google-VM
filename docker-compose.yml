@@ -31,8 +31,6 @@ services:
       - redis
     environment:
       - USE_GCS=False 
-    volumes:
-      - .:/app
     command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
 
   rqworker:
@@ -40,8 +38,6 @@ services:
       context: .
       dockerfile: backend.Dockerfile
     command: python manage.py rqworker default
-    volumes:
-      - .:/app
     depends_on:
       - redis
       - db
