@@ -11,8 +11,6 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # Debug
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
-print("DEBUG:", DEBUG)
-print("SECRET_KEY:", SECRET_KEY)
 
 # Hosts
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
