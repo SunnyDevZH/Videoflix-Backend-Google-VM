@@ -38,12 +38,25 @@ cd videoflix-backend
 ### 2. .env Datei erstellen
 cp .env.template .env
 
-### 3. Docker-Container starten
+### 3. Docker-Container leeren
+docker-compose down --volumes
+docker-compose build --no-cache
+
+### 4. Docker-Container starten
 docker-compose up --build
 
-### 4. Anwendung im Browser öffnen:
+### 5. Anwendung im Browser öffnen:
 http://localhost:8000/admin
 
+### 6. Benutzer und Passwort
+Admin
+Adminpassword
+
+### 7. Video hochladen 
+kann 5-10 Sek. dauern bis die Videos umgewandelt wurden von den Workers
+
+### 8. Frontend starten
+Siehe ReadMe
 
 ## 📧 Kontakt
 Email: yannick.vaterlaus.dev@gmail.com
