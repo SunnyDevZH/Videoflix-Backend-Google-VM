@@ -27,6 +27,8 @@ services:
       - db
       - redis
     command: ./backend.entrypoint.sh
+    volumes:
+      - ./media:/app/media
 
   rqworker:
     build:
@@ -37,7 +39,15 @@ services:
     depends_on:
       - db
       - redis
-    command: python manage.py rqworker default
+    command: >
+      sh -c "
+      echo 'Warte auf PostgreSQL...';
+      while ! pg_isready -h $DB_HOST -p $DB_PORT -q; do sleep 1; done;
+      echo 'PostgreSQL bereit, starte Worker...';
+      python manage.py rqworker default
+      "
+    volumes:
+      - ./media:/app/media
 
 volumes:
   postgres_data:

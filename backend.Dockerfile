@@ -1,8 +1,8 @@
 FROM python:3.12-alpine
 
-LABEL maintainer="mihai@developerakademie.com"
+LABEL maintainer="developer@example.com"
 LABEL version="1.0"
-LABEL description="Python 3.14.0a7 Alpine 3.21"
+LABEL description="Videoflix Backend"
 
 WORKDIR /app
 
@@ -21,5 +21,3 @@ COPY . .
 RUN chmod +x backend.entrypoint.sh
 
 EXPOSE 8000
-
-ENTRYPOINT [ "./backend.entrypoint.sh" ]
