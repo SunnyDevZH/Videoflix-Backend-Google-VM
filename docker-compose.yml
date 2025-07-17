@@ -1,10 +1,8 @@
 version: "3.9"
 
 services:
-
   db:
     image: postgres:latest
-    container_name: videoflix_database
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -14,7 +12,6 @@ services:
 
   redis:
     image: redis:latest
-    container_name: videoflix_redis
     volumes:
       - redis_data:/data
 
@@ -22,32 +19,26 @@ services:
     build:
       context: .
       dockerfile: backend.Dockerfile
-    env_file: .env
-    container_name: videoflix_backend
+    env_file:
+      - .env
     ports:
       - "8000:8000"
     depends_on:
       - db
       - redis
-    environment:
-      - USE_GCS=False 
-    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
+    command: ./backend.entrypoint.sh
 
   rqworker:
     build:
       context: .
       dockerfile: backend.Dockerfile
-    command: python manage.py rqworker default
-    depends_on:
-      - redis
-      - db
-    environment:
-      - DJANGO_SETTINGS_MODULE=core.settings
     env_file:
       - .env
+    depends_on:
+      - db
+      - redis
+    command: python manage.py rqworker default
 
 volumes:
   postgres_data:
   redis_data:
-  videoflix_media:
-  videoflix_static:

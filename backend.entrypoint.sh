@@ -15,7 +15,6 @@ echo "PostgreSQL ist bereit - fahre fort..."
 
 # Deine originalen Befehle (ohne wait_for_db)
 python manage.py collectstatic --noinput
-python manage.py makemigrations
 python manage.py migrate
 
 # Create a superuser using environment variables
@@ -38,6 +37,6 @@ else:
     print(f"Superuser '{username}' already exists.")
 EOF
 
-python manage.py rqworker default &
+
 
 exec gunicorn core.wsgi:application --bind 0.0.0.0:8000
