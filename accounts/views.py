@@ -166,7 +166,7 @@ class PasswordResetRequestAPIView(APIView):
         code = f"{random.randint(100000, 999999)}"
         PasswordResetCode.objects.create(user=user, code=code)
 
-        reset_link = "http://localhost:5173/reset-password"
+        reset_link = "http://localhost:5173/videoflix/reset-password"
         username = user.email.split("@")[0]
 
         send_mail(
