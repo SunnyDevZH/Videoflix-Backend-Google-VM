@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.utils import timezone
-from django.utils.crypto import get_random_string
+from django.utils.crypto import get_random_string#
+from django.conf import settings
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -37,6 +38,13 @@ class RegisterView(APIView):
         Handles user registration.
         Sends an activation email after successful registration.
         """
+        email = request.data.get("email")
+        if User.objects.filter(email=email).exists():
+            return Response(
+                {"error": "Benutzer mit dieser E-Mail existiert bereits."},
+                status=409
+            )
+
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -60,7 +68,7 @@ class RegisterView(APIView):
                     f"Dein Videoflix Team\n"
                     f"Yannick"
                 ),
-                from_email="noreply@deineapp.com",
+                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],
             )
 
@@ -182,7 +190,7 @@ class PasswordResetRequestAPIView(APIView):
                 f"Dein Videoflix Team\n"
                 f"Yannick"
             ),
-            from_email='noreply@deineapp.com',
+            from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
         )
 
