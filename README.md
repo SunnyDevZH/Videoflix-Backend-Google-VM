@@ -32,26 +32,43 @@ Das Backend für die Videoflix-Plattform, entwickelt mit Django und Django REST 
 
 
 ### 1. Repository klonen
+```bash
 git clone https://github.com/SunnyDevZH/videoflix-backend
+```
+```bash
 cd videoflix-backend
+```
 
 ### 2. .env Datei erstellen
+```bash
 cp .env.template .env
+```
 
 ### 3. Docker-Container leeren
+```bash
 docker-compose down --volumes
+```
+```bash
 docker-compose build --no-cache
+```
 
 ### 4. Docker-Container starten
+```bash
 docker-compose up --build
+```
 
 ### 5. Anwendung im Browser öffnen:
+```bash
 http://localhost:8000/admin
+```
 
 ### 6. Benutzer und Passwort
+```bash
 Admin
+```
+```bash
 Adminpassword
-
+```
 ### 7. Video hochladen 
 kann 5-10 Sek. dauern bis die Videos umgewandelt wurden von den Workers
 
@@ -59,5 +76,7 @@ kann 5-10 Sek. dauern bis die Videos umgewandelt wurden von den Workers
 Siehe ReadMe
 
 ## 📧 Kontakt
+```bash
 Email: yannick.vaterlaus.dev@gmail.com
+```
 
