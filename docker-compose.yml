@@ -29,6 +29,7 @@ services:
     command: ./backend.entrypoint.sh
     volumes:
       - ./media:/app/media
+      - ./staticfiles:/app/staticfiles
 
   rqworker:
     build:
