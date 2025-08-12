@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from google.oauth2 import service_account
 
 load_dotenv()
 
@@ -94,25 +95,16 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # für collectstatic
 
-
-MEDIA_URL = '/videoflix/media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
-# Google Cloud Storage Einstellungen
-USE_GCS = os.getenv('USE_GCS', 'False').lower() in ('true', '1', 'yes')
-
-if USE_GCS:
-    from google.oauth2 import service_account
-    credentials_path = os.path.join(BASE_DIR, 'core/credentials/service-account-key.json')
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(credentials_path)
-    GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME', 'videoflix-videos-yannick')
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-else:
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+# Google Cloud Storage Einstellungen (für späteren Upload im Task/Script)
+GS_BUCKET_NAME = os.getenv('GS_BUCKET_NAME', 'videoflix-videos-yannick')
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+    os.path.join(BASE_DIR, 'core/credentials/service-account-key.json')
+)
 
 # Email
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'yannick.vaterlaus.dev@gmail.com')
