@@ -31,36 +31,41 @@ class VideoSerializer(serializers.ModelSerializer):
             'title',
             'description',
             'thumbnail_url',
-            'video_file',  # Originalvideo
+            'video_file',  # Originalvideo (Cloud-URL)
             'resolutions',  # URLs der verschiedenen Auflösungen
             'categories',
             'created_at',
         ]
 
-    def get_signed_url(self, file_field):
+    def get_signed_url(self, url):
         """
-        Returns a signed URL for the given file field.
-        - Uses Google Cloud Storage if enabled, otherwise returns a local or absolute URL.
+        Returns the URL for the given field.
+        If you need signed URLs for GCS, implement generate_signed_url(url).
         """
-        if not file_field:
+        if not url:
             return ""
-        if getattr(settings, "USE_GCS", False):
-            return generate_signed_url(file_field.name)
-        request = self.context.get("request")
-        if request:
-            return request.build_absolute_uri(file_field.url)
-        return file_field.url
+        # Falls du signierte URLs brauchst, hier anpassen:
+        # if getattr(settings, "USE_GCS", False):
+        #     return generate_signed_url(url)
+        return url
 
     def get_thumbnail_url(self, obj):
         """
         Returns a signed URL for the video's thumbnail image.
         """
-        return self.get_signed_url(obj.thumbnail)
+        # thumbnail ist weiterhin ein ImageField, daher wie gehabt:
+        if obj.thumbnail:
+            request = self.context.get("request")
+            if request:
+                return request.build_absolute_uri(obj.thumbnail.url)
+            return obj.thumbnail.url
+        return ""
 
     def get_resolutions(self, obj):
         """
         Returns a dictionary of signed URLs for each available video resolution.
         """
+        # Die Video-Felder sind jetzt Strings (Cloud-URLs)
         return {
             "360p": self.get_signed_url(obj.video_360p),
             "480p": self.get_signed_url(obj.video_480p),

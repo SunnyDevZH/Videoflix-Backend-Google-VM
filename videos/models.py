@@ -22,12 +22,13 @@ class Video(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     thumbnail = models.ImageField(upload_to='thumbnails/', null=True, blank=True)
-    video_file = models.FileField(upload_to='videos/original/', null=True, blank=True)
+    video_file = models.FileField(upload_to='videos/original/', null=True, blank=True)  # Für Upload im Admin
 
-    video_360p = models.FileField(upload_to='videos/360p/', null=True, blank=True)
-    video_480p = models.FileField(upload_to='videos/480p/', null=True, blank=True)
-    video_720p = models.FileField(upload_to='videos/720p/', null=True, blank=True)
-    video_1080p = models.FileField(upload_to='videos/1080p/', null=True, blank=True)
+    video_file_url = models.URLField(null=True, blank=True)  # Cloud-URL nach Upload
+    video_360p = models.URLField(null=True, blank=True)
+    video_480p = models.URLField(null=True, blank=True)
+    video_720p = models.URLField(null=True, blank=True)
+    video_1080p = models.URLField(null=True, blank=True)
 
     categories = models.ManyToManyField(Category, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

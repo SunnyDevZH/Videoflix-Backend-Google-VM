@@ -18,13 +18,13 @@ from .tasks import generate_resolutions  # Dein Hintergrundjob
 logger = logging.getLogger(__name__)
 
 def get_video_url(video):
+    # Angepasst für URLField!
     if video.video_file:
-        if getattr(settings, "USE_GCS", False):
-            return generate_signed_url(video.video_file.name)
-        else:
-            return video.video_file.url
+        # Falls du signierte URLs für GCS brauchst, hier anpassen:
+        # if getattr(settings, "USE_GCS", False):
+        #     return generate_signed_url(video.video_file)
+        return video.video_file
     return ''
-
 
 class VideoListView(APIView):
     """
@@ -37,7 +37,6 @@ class VideoListView(APIView):
         videos = Video.objects.all()
         serializer = VideoSerializer(videos, many=True, context={'request': request})
         return Response(serializer.data)
-
 
 class VideoDetailView(APIView):
     """
@@ -56,7 +55,6 @@ class VideoDetailView(APIView):
         serializer = VideoSerializer(video, context={'request': request})
         return Response(serializer.data)
 
-
 class CategoryListView(APIView):
     """
     Returns a list of all video categories.
@@ -68,7 +66,6 @@ class CategoryListView(APIView):
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
-
 
 class VideoUploadView(APIView):
     """
@@ -89,14 +86,12 @@ class VideoUploadView(APIView):
             
             logger.info(f"Task generate_resolutions für Video {video.id} enqueued mit Job-ID {job.id}")
 
-            # Optional: Status in der Response mitgeben
             response_data = serializer.data.copy()
             response_data['task_job_id'] = job.id
             response_data['task_status'] = 'enqueued'
 
             return Response(response_data, status=201)
         return Response(serializer.errors, status=400)
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
