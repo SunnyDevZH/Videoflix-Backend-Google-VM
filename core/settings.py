@@ -15,7 +15,7 @@ DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 # Hosts
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000', 'http://localhost:5173']
+CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')]
 
 # Installed Apps
 INSTALLED_APPS = [
@@ -121,6 +121,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "https://yannick-vaterlaus.ch",
+    "https://videoflix-api.ch",
 ]
 
 # REST Framework
@@ -134,10 +135,11 @@ REST_FRAMEWORK = {
 }
 
 # CSRF & Session Cookie Settings
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS
 
 # Redis & django-rq
 REDIS_HOST = os.getenv('REDIS_HOST', 'redis')
