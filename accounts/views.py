@@ -55,7 +55,7 @@ class RegisterView(APIView):
             code = get_random_string(64)
             ActivationCode.objects.create(user=user, code=code)
 
-            activation_link = f"http://localhost:5173/videoflix/activate/{code}"
+            activation_link = f"https://yannick-vaterlaus.ch/videoflix/activate/{code}"
             username = user.email.split("@")[0]
 
             send_mail(
@@ -174,7 +174,7 @@ class PasswordResetRequestAPIView(APIView):
         code = f"{random.randint(100000, 999999)}"
         PasswordResetCode.objects.create(user=user, code=code)
 
-        reset_link = "http://localhost:5173/videoflix/reset-password"
+        reset_link = "https://yannick-vaterlaus.ch/videoflix/reset-password"
         username = user.email.split("@")[0]
 
         send_mail(
